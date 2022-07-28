@@ -1,0 +1,6 @@
+.venv/
+.idea/
+__pycache__/
+cloud_payment_error.log
+Pipfile
+Pipfile.lock
