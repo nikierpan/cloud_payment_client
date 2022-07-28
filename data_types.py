@@ -56,7 +56,7 @@ class TokenPayRequestData(_BasePayRequestData):
     """
 
     Token: str = field(metadata=dict(required=True))
-    AccountId: Optional[str] = None
+    AccountId: Optional[str] = field(metadata=dict(required=False))
 
 
 @dataclass
