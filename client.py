@@ -1,10 +1,11 @@
 from typing import Optional, Dict, Any, Union
 import functools
 from dataclasses import asdict
+import base64
+import logging
 
 from aiohttp import BasicAuth
 from aiohttp import connector
-import logging
 
 from abstract_client import AbstractInteractionClient, InteractionResponseError
 from configs import CloudPaymentsConfig as CPConf
@@ -73,7 +74,7 @@ class CloudPaymentClient(AbstractInteractionClient):
 
     async def make_card_payment(self,
                                 data: Dict[str, Any],
-                                payment_type: str = 'auth') -> BasePayResponseData:
+                                payment_type: str = 'charge') -> BasePayResponseData:
 
         validated_payment_type = self.validator.payment_type(payment_type)
 
@@ -85,11 +86,28 @@ class CloudPaymentClient(AbstractInteractionClient):
 
     async def make_token_payment(self,
                                  data: Dict[str, Any],
-                                 payment_type: str = 'auth') -> BasePayResponseData:
+                                 payment_type: str = 'charge') -> BasePayResponseData:
 
         validated_payment_type = self.validator.payment_type(payment_type)
         url = self.endpoint_url(CPConf.TOKEN_PAY_URL + validated_payment_type)
 
         validated_data = self.validator.token_pay_request_data(data)
+
+        return await self._make_payment(url=url, data=asdict(validated_data))
+
+    @staticmethod
+    def decode_yandex_token(token: str) -> str:
+        decode_token = base64.b64decode(token.encode("ascii")).decode("ascii")
+        return decode_token
+
+    async def make_payment_by_yandex_token(self,
+                                           data: Dict[str, Any],
+                                           payment_type: str = 'charge'):
+
+        validated_payment_type = self.validator.payment_type(payment_type)
+        url = self.endpoint_url(CPConf.TOKEN_PAY_URL + validated_payment_type)
+
+        validated_data = self.validator.token_pay_request_data(data)
+        validated_data.Token = self.decode_yandex_token(validated_data.Token)
 
         return await self._make_payment(url=url, data=asdict(validated_data))

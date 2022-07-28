@@ -12,13 +12,13 @@ DATA = {
     "InvoiceId": "1234567",
     "Description": "Оплата товаров в example.com",
     "AccountId": "user_x",
-    "Token": "success_1111a3e0-2428-48fb-a530-12815d90d0e8",
+    "Token": "c3VjY2Vzc18xMTExYTNlMC0yNDI4LTQ4ZmItYTUzMC0xMjgxNWQ5MGQwZTg=",
 }
 
 
 async def main():
     async with CloudPaymentClient(public_id=PUBLIC_KEY, api_secret=API_SECRET) as client:
-        payment_resp = await client.make_token_payment(data=DATA, payment_type='charge')
+        payment_resp = await client.make_payment_by_yandex_token(data=DATA, payment_type='charge')
 
         # payment_resp.Success
         # payment_resp.Message
